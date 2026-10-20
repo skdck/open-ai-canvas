@@ -476,15 +476,11 @@ export function WorkbenchPage({ kind }: { kind: WorkbenchKind }) {
         else params.delete("tool");
         params.delete("preset");
         setSearchParams(params, { replace: true });
-        // 工具选择必须真实作用于提示词：有预设模板且当前提示词为空时直接填充首个预设，
-        // 否则展示预设 chips 让用户主动应用，避免"选了工具没反应"。
-        if (next?.presets.length) {
-            const first = next.presets[0];
-            if (!prompt.trim()) {
-                setPrompt(first.promptTemplate);
-                setPreset(first);
-            }
-        }
+        // 工具选择必须真实作用于提示词：一律换成新工具的模板（新工具没有预设就清空），
+        // 否则输入框会留着上一个工具的文案，看起来像"切了没反应"。
+        const nextPrompt = next?.presets[0]?.promptTemplate || "";
+        setPrompt(nextPrompt);
+        if (nextPrompt && next) setPreset(next.presets[0]);
     };
 
     const choosePreset = (next: WorkbenchPromptPreset) => {
